@@ -15,7 +15,7 @@ export default async function adminRoutes(app: FastifyInstance) {
   app.get("/api/admin/stats", async (req, reply) => {
     if (!guard(req, reply)) return;
 
-    const slot = Number(req.query.slot || process.env.SESSION_SLOT || "1");
+    const slot = Number((req.query as any).slot || process.env.SESSION_SLOT || "1");
     const session = await prisma.session.findFirst({ where: { slot }, orderBy: { id: "desc" } });
 
     const byTreatment = await prisma.participant.groupBy({
@@ -37,7 +37,7 @@ export default async function adminRoutes(app: FastifyInstance) {
     if (!guard(req, reply)) return;
 
     const type = (req.params as any).type;
-    const sessionId = req.query.sessionId ? Number(req.query.sessionId) : undefined;
+    const sessionId = (req.query as any).sessionId ? Number((req.query as any).sessionId) : undefined;
 
     if (type === "scans") {
       const csv = await exportScansCSV(sessionId);
