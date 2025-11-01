@@ -10,4 +10,4 @@ RUN corepack enable && corepack prepare pnpm@9.12.0 --activate \
  && pnpm run build
 WORKDIR /app/api
 ENV NODE_ENV=production
-CMD sh -c "npx prisma migrate deploy --schema=src/prisma/schema.prisma && pnpm run start"
+CMD sh -c "npx prisma db push --schema=src/prisma/schema.prisma --accept-data-loss && pnpm run start"
