@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd api && pnpm install && pnpm run generate && pnpm run build",
-    "start": "cd api && pnpm run start",
-    "migrate:deploy": "cd api && pnpm run migrate:deploy"
+    "build": "pnpm --dir api install && pnpm --dir api run generate && pnpm --dir api run build",
+    "start": "pnpm --dir api run start",
+    "migrate:deploy": "pnpm --dir api run migrate:deploy"
   },
   "engines": {
     "node": ">=22.0.0"
