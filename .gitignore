@@ -1,0 +1,20 @@
+# Node
+node_modules/
+.pnpm-store/
+dist/
+build/
+.DS_Store
+# Env
+.env
+.env.local
+# Prisma
+api/src/prisma/dev.db
+api/src/prisma/*.sqlite
+# Logs
+*.log
+# Vite
+web/.vite/
+web/dist/
+# Editor
+.idea/
+.vscode/

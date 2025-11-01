@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id       Int           @id @default(autoincrement())
+  slot     Int
+  startTs  DateTime
+  endTs    DateTime?
+  scans    Scan[]
+  parts    Participant[]
+}
+
+model Participant {
+  id           String    @id @default(uuid())
+  publicCode   String
+  sessionId    Int
+  session      Session   @relation(fields: [sessionId], references: [id])
+  treatment    String
+  totalReports Int       @default(0)
+  createdAt    DateTime  @default(now())
+  scans        Scan[]
+}
+
+model Issue {
+  id          String  @id
+  sessionSlot Int
+  scans       Scan[]
+}
+
+model Scan {
+  id            BigInt       @id @default(autoincrement())
+  participantId String
+  participant   Participant  @relation(fields: [participantId], references: [id])
+  treatment     String
+  issueId       String
+  issue         Issue        @relation(fields: [issueId], references: [id])
+  sessionId     Int
+  session       Session      @relation(fields: [sessionId], references: [id])
+  periodId      Int
+  lat           Float?
+  lon           Float?
+  accuracy      Float?
+  ts            DateTime     @default(now())
+
+  @@unique([participantId, issueId])
+  @@index([sessionId, issueId])
+  @@index([sessionId])
+}
