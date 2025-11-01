@@ -6,13 +6,13 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "migrate": "prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy --schema=src/prisma/schema.prisma",
-    "generate": "prisma generate --schema=src/prisma/schema.prisma",
+    "migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "migrate:deploy": "prisma migrate deploy --schema=prisma/schema.prisma",
+    "generate": "prisma generate --schema=prisma/schema.prisma",
     "seed": "tsx src/db/seed-issues.ts"
   },
   "prisma": {
-    "schema": "src/prisma/schema.prisma"
+    "schema": "prisma/schema.prisma"
   },
   "dependencies": {
     "@fastify/cookie": "^9.4.0",

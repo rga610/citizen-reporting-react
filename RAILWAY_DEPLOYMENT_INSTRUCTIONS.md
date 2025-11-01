@@ -79,7 +79,7 @@ corepack pnpm run dev
 If migrations didn't run:
 - Check Railway deploy logs
 - Verify `DATABASE_URL` is correct
-- Try manual deploy: open terminal in Railway and run `cd api && npx prisma migrate deploy --schema=src/prisma/schema.prisma`
+- Try manual deploy: open terminal in Railway and run `cd api && npx prisma migrate deploy --schema=prisma/schema.prisma`
 
 If you need help, check `/Implementation Plan & Technical Documentation.md` for detailed architecture.
 
