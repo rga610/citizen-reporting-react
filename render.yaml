@@ -1,10 +1,12 @@
 services:
+  # ---------- API (Fastify + Prisma) ----------
   - type: web
     name: citizen-reporting-api
     env: node
-    plan: free
     rootDir: api
     region: frankfurt
+    runtime:
+      nodeVersion: 20
     buildCommand: |
       corepack enable
       corepack prepare pnpm@9.12.0 --activate
@@ -12,10 +14,10 @@ services:
       pnpm run generate
       pnpm run build
     startCommand: |
-      pnpm run migrate:deploy || (echo "fallback to db push" && npx prisma db push --schema=prisma/schema.prisma)
+      pnpm run migrate:deploy || (echo "fallback to db push" && npx prisma db push)
       pnpm run start
-    autoDeploy: true
     healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -29,13 +31,14 @@ services:
         generateValue: true
       - key: SESSION_SLOT
         value: "1"
+      # Ensure prisma/ gets packed
       - key: NIXPACKS_NODE_INCLUDE
         value: prisma/**
-    runtime:
-      nodeVersion: 20
 
-  - type: static
+  # ---------- Web (React + Vite PWA as static) ----------
+  - type: web
     name: citizen-reporting-web
+    env: static
     rootDir: web
     buildCommand: |
       corepack enable
@@ -48,7 +51,7 @@ services:
         fromService:
           name: citizen-reporting-api
           type: web
-          property: host
+          property: url
 
 databases:
   - name: citizen-reporting-db
