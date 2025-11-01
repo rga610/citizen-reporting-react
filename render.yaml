@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: citizen-reporting-api
+    env: node
+    plan: free
+    rootDir: api
+    region: frankfurt
+    buildCommand: |
+      corepack enable
+      corepack prepare pnpm@9.12.0 --activate
+      pnpm install --frozen-lockfile
+      pnpm run generate
+      pnpm run build
+    startCommand: |
+      pnpm run migrate:deploy || (echo "fallback to db push" && npx prisma db push --schema=prisma/schema.prisma)
+      pnpm run start
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: citizen-reporting-db
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: SESSION_SLOT
+        value: "1"
+      - key: NIXPACKS_NODE_INCLUDE
+        value: prisma/**
+    runtime:
+      nodeVersion: 20
+
+  - type: static
+    name: citizen-reporting-web
+    rootDir: web
+    buildCommand: |
+      corepack enable
+      corepack prepare pnpm@9.12.0 --activate
+      pnpm install --frozen-lockfile
+      pnpm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: citizen-reporting-api
+          type: web
+          property: host
+
+databases:
+  - name: citizen-reporting-db
