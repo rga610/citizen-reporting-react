@@ -9,5 +9,5 @@ depCmds = ["cd api && pnpm install"]
 cmds = ["cd api && pnpm run generate && pnpm run build"]
 
 [start]
-cmd = "cd api && pnpm run migrate:deploy && pnpm run start"
+cmd = "cd api && npx prisma migrate deploy --schema=src/prisma/schema.prisma && pnpm run start"
 
