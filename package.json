@@ -1,0 +1,13 @@
+{
+  "name": "citizen-reporting",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd api && pnpm install && pnpm run generate && pnpm run build",
+    "start": "cd api && pnpm run start",
+    "migrate:deploy": "cd api && pnpm run migrate:deploy"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
