@@ -5,8 +5,7 @@ services:
     env: node
     rootDir: api
     region: frankfurt
-    runtime:
-      nodeVersion: 20
+    nodeVersion: 20
     buildCommand: |
       corepack enable
       corepack prepare pnpm@9.12.0 --activate
@@ -31,7 +30,6 @@ services:
         generateValue: true
       - key: SESSION_SLOT
         value: "1"
-      # Ensure prisma/ gets packed
       - key: NIXPACKS_NODE_INCLUDE
         value: prisma/**
 
