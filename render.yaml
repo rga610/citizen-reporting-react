@@ -1,11 +1,10 @@
 services:
-  # ---------- API (Fastify + Prisma) ----------
+  # API (Fastify/Express + Prisma)
   - type: web
     name: citizen-reporting-api
-    env: node
+    runtime: node
     rootDir: api
     region: frankfurt
-    nodeVersion: 20
     buildCommand: |
       corepack enable
       corepack prepare pnpm@9.12.0 --activate
@@ -30,13 +29,14 @@ services:
         generateValue: true
       - key: SESSION_SLOT
         value: "1"
+      # ensure prisma/ is included in build context
       - key: NIXPACKS_NODE_INCLUDE
         value: prisma/**
 
-  # ---------- Web (React + Vite PWA as static) ----------
+  # Web (React + Vite PWA)
   - type: web
     name: citizen-reporting-web
-    env: static
+    runtime: static
     rootDir: web
     buildCommand: |
       corepack enable
@@ -45,11 +45,10 @@ services:
       pnpm run build
     staticPublishPath: dist
     envVars:
+      # You can’t reference a service public URL here. Prompt once during creation.
+      # After the API is live, paste its onrender.com URL (or later swap to a custom domain).
       - key: VITE_API_URL
-        fromService:
-          name: citizen-reporting-api
-          type: web
-          property: url
+        sync: false
 
 databases:
   - name: citizen-reporting-db
