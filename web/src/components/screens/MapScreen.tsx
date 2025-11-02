@@ -128,10 +128,6 @@ export function MapScreen({ onViewInsights, onEnterCode, onProfile }: MapScreenP
       {isDev && showDevPanel && (
         <DevPanel
           onClose={() => setShowDevPanel(false)}
-          onSwitchUser={() => {
-            setShowDevPanel(false)
-            // Page will reload after switch
-          }}
         />
       )}
     </div>
