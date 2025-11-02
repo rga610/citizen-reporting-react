@@ -48,7 +48,7 @@ export default async function sseRoutes(app: FastifyInstance) {
         },
         select: { id: true }
       });
-      const cooperativeParticipantIds = cooperativeParticipants.map(p => p.id);
+      const cooperativeParticipantIds = cooperativeParticipants.map((p: { id: string }) => p.id);
 
       // Count distinct issues found ONLY by cooperative group members
       // If no cooperative participants exist yet, found count is 0
@@ -88,7 +88,7 @@ export default async function sseRoutes(app: FastifyInstance) {
         });
 
         // Use all participants for the leaderboard
-        top = allParticipantsInGroup.map(p => ({
+        top = allParticipantsInGroup.map((p: { publicCode: string; totalReports: number }) => ({
           publicCode: p.publicCode,
           totalReports: p.totalReports
         }));
@@ -98,7 +98,7 @@ export default async function sseRoutes(app: FastifyInstance) {
 
         // Get user's rank and score
         if (pid) {
-          const userIndex = allParticipantsInGroup.findIndex(p => p.id === pid);
+          const userIndex = allParticipantsInGroup.findIndex((p: { id: string }) => p.id === pid);
           if (userIndex !== -1) {
             userRank = userIndex + 1;
             userScore = allParticipantsInGroup[userIndex].totalReports;

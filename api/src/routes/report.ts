@@ -71,7 +71,7 @@ export default async function reportRoutes(app: FastifyInstance) {
         },
         select: { id: true }
       });
-      const cooperativeParticipantIds = cooperativeParticipants.map(p => p.id);
+      const cooperativeParticipantIds = cooperativeParticipants.map((p: { id: string }) => p.id);
 
       // Count distinct issues found ONLY by cooperative group members
       // If no cooperative participants exist yet, found count is 0
