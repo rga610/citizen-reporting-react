@@ -1,10 +1,21 @@
 // Use local API in development, Railway API in production
 // Can be overridden with VITE_API_URL environment variable
-const API_URL = import.meta.env.VITE_API_URL || (
+let API_URL = (import.meta.env.VITE_API_URL || (
   import.meta.env.DEV 
     ? "http://localhost:3000" 
     : "https://citizen-reporting-react-production.up.railway.app"
-);
+)).trim();
+
+// Ensure API_URL is always absolute (has protocol)
+// If VITE_API_URL was set without protocol, add https://
+if (API_URL && !API_URL.match(/^https?:\/\//)) {
+  API_URL = `https://${API_URL}`;
+}
+
+// Log API_URL in development for debugging
+if (import.meta.env.DEV) {
+  console.log('[API] Using API_URL:', API_URL);
+}
 
 function handleError(error: unknown, context: string) {
   if (error instanceof TypeError && error.message === 'Failed to fetch') {
