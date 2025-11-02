@@ -14,12 +14,12 @@ function handleError(error: unknown, context: string) {
 }
 
 export const api = {
-  login: (username: string) =>
+  login: (username: string, forceLogout?: boolean) =>
     fetch(`${API_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username })
+      body: JSON.stringify({ username, forceLogout: forceLogout || false })
     }).catch(err => {
       handleError(err, 'API.login')
       throw err
@@ -28,7 +28,8 @@ export const api = {
     fetch(`${API_URL}/api/logout`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include"
+      credentials: "include",
+      body: JSON.stringify({}) // Send empty JSON body to satisfy Fastify
     }).catch(err => {
       handleError(err, 'API.logout')
       throw err
@@ -47,10 +48,15 @@ export const api = {
       handleError(err, 'API.report')
       throw err
     }),
-  sse: (slot: number) => {
-    const es = new EventSource(`${API_URL}/api/sse/slot/${slot}`)
+  sse: (slot: number, treatment?: string) => {
+    // EventSource doesn't support credentials option, so we pass treatment as query param
+    const url = new URL(`${API_URL}/api/sse/slot/${slot}`)
+    if (treatment) {
+      url.searchParams.set('treatment', treatment)
+    }
+    const es = new EventSource(url.toString())
     es.onerror = () => {
-      console.warn(`[SSE] Connection error to ${API_URL}/api/sse/slot/${slot}. Is the API server running?`)
+      console.warn(`[SSE] Connection error to ${url.toString()}. Is the API server running?`)
     }
     return es
   },
@@ -124,6 +130,19 @@ export const api = {
         body: JSON.stringify({ participantId, score })
       }).catch(err => {
         handleError(err, 'API.admin.setScore')
+        throw err
+      }),
+    logoutUser: (token: string, participantId: string) =>
+      fetch(`${API_URL}/api/admin/logout-user`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-admin-token": token
+        },
+        credentials: "include",
+        body: JSON.stringify({ participantId })
+      }).catch(err => {
+        handleError(err, 'API.admin.logoutUser')
         throw err
       })
   }

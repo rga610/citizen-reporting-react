@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ChevronDown, ChevronUp, RotateCcw, Edit2, X, RefreshCw, Check } from 'lucide-react'
+import { ChevronDown, ChevronUp, RotateCcw, Edit2, X, RefreshCw, Check, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { wuTypography } from '@/theme/wu'
 import { api } from '@/utils/api'
@@ -138,6 +138,24 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
     setEditingScores(newEditing)
   }
 
+  const handleLogoutUser = async (participantId: string) => {
+    const actionKey = `logout-user-${participantId}`
+    setActiveActions({ ...activeActions, [actionKey]: true })
+    
+    try {
+      const res = await api.admin.logoutUser(adminToken, participantId)
+      if (!res.ok) {
+        throw new Error('Failed to logout user')
+      }
+      await fetchParticipants()
+    } catch (err) {
+      console.error('Failed to logout user:', err)
+      alert('Failed to logout user. Check console for details.')
+    } finally {
+      setActiveActions({ ...activeActions, [actionKey]: false })
+    }
+  }
+
   const groupedParticipants = participants.reduce((acc, p) => {
     const groupLetter = getGroupLetter(p.treatment)
     if (!acc[groupLetter]) {
@@ -241,6 +259,7 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
                           const editingValue = editingScores[participant.id] || ''
                           const isResetting = activeActions[`reset-user-${participant.id}`]
                           const isSettingScore = activeActions[`set-score-${participant.id}`]
+                          const isLoggingOut = activeActions[`logout-user-${participant.id}`]
 
                           return (
                             <div
@@ -336,6 +355,27 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
                                     <RotateCcw className="h-4 w-4" strokeWidth={2} />
                                   )}
                                 </button>
+
+                                {/* Logout User Button (only show if user is active) */}
+                                {participant.isActive && (
+                                  <button
+                                    onClick={() => {
+                                      if (confirm(`Log out ${participant.publicCode}?`)) {
+                                        handleLogoutUser(participant.id)
+                                      }
+                                    }}
+                                    disabled={isLoggingOut || isEditing}
+                                    className="p-1.5 text-[var(--wu-primary)] hover:text-[var(--wu-primary-dark)] hover:bg-[var(--wu-muted)] rounded transition-colors disabled:opacity-50"
+                                    aria-label="Logout user"
+                                    title="Log out this user"
+                                  >
+                                    {isLoggingOut ? (
+                                      <RefreshCw className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <LogOut className="h-4 w-4" strokeWidth={2} />
+                                    )}
+                                  </button>
+                                )}
                               </div>
                             </div>
                           )

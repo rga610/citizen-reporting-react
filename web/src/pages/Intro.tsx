@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { wuTypography } from '@/theme/wu'
-import { LogIn, AlertCircle, Shield, MapPin, Trophy, Clock } from 'lucide-react'
+import { LogIn, AlertCircle, Shield, MapPin, Clock } from 'lucide-react'
 
 export default function Intro() {
   const navigate = useNavigate()
@@ -76,10 +76,6 @@ export default function Intro() {
               <li className="flex items-start gap-3">
                 <LogIn className="h-5 w-5 text-[var(--wu-primary)] flex-shrink-0 mt-0.5" strokeWidth={2} />
                 <span>Scan QR codes or enter issue codes manually</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Trophy className="h-5 w-5 text-[var(--wu-primary)] flex-shrink-0 mt-0.5" strokeWidth={2} />
-                <span>See your ranking and compete with others</span>
               </li>
               <li className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-[var(--wu-primary)] flex-shrink-0 mt-0.5" strokeWidth={2} />

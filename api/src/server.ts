@@ -39,7 +39,7 @@ app.get("/api/health", async () => ({
 
 // Login endpoint - authenticate with username
 app.post("/api/login", async (req, reply) => {
-  const { username } = req.body as { username?: string };
+  const { username, forceLogout } = req.body as { username?: string; forceLogout?: boolean };
   if (!username || typeof username !== "string" || username.trim().length === 0) {
     return reply.code(400).send({ error: "Username is required" });
   }
@@ -65,7 +65,19 @@ app.post("/api/login", async (req, reply) => {
 
   // Check if username is already active in this session
   if (participant.isActive) {
-    return reply.code(409).send({ error: "This username is already logged in. Please use a different username." });
+    if (forceLogout) {
+      // Force logout: deactivate the existing session and proceed with login
+      await prisma.participant.update({
+        where: { id: participant.id },
+        data: { isActive: false }
+      });
+      // Continue to login below
+    } else {
+      return reply.code(409).send({ 
+        error: "This username is already logged in.",
+        alreadyActive: true
+      });
+    }
   }
 
   // Mark as active and set cookie
@@ -74,7 +86,12 @@ app.post("/api/login", async (req, reply) => {
     data: { isActive: true }
   });
 
-  reply.setCookie("pid", participant.id, { httpOnly: true, sameSite: "lax", path: "/" });
+  reply.setCookie("pid", participant.id, { 
+    httpOnly: true, 
+    sameSite: "lax", 
+    path: "/",
+    secure: process.env.NODE_ENV === "production"
+  });
   return reply.send({
     status: "ok",
     publicCode: participant.publicCode,
@@ -86,16 +103,49 @@ app.post("/api/login", async (req, reply) => {
 // Logout endpoint - mark user as inactive
 app.post("/api/logout", async (req, reply) => {
   const pid = req.cookies["pid"];
-  if (pid) {
+  if (!pid) {
+    return reply.code(400).send({ error: "Not logged in" });
+  }
+
+  try {
+    // Find and update participant
+    const participant = await prisma.participant.findUnique({ where: { id: pid } });
+    if (!participant) {
+      // Participant not found, but clear cookie anyway
+      reply.clearCookie("pid", { 
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production"
+      });
+      return reply.send({ status: "ok", message: "Session cleared" });
+    }
+
+    // Mark as inactive
     await prisma.participant.update({
       where: { id: pid },
       data: { isActive: false }
-    }).catch(() => {
-      // Ignore errors if participant not found
     });
-    reply.clearCookie("pid", { path: "/" });
+
+    // Clear cookie with same options as when setting it
+    reply.clearCookie("pid", { 
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production"
+    });
+    return reply.send({ status: "ok", message: "Logged out successfully" });
+  } catch (err) {
+    // Log error but still try to clear cookie
+    app.log.error({ err }, "Logout error");
+    reply.clearCookie("pid", { 
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production"
+    });
+    return reply.code(500).send({ error: "Failed to logout", message: "Session cleared but logout failed" });
   }
-  return reply.send({ status: "ok" });
 });
 
 // Dev-only endpoints for testing (only in development)

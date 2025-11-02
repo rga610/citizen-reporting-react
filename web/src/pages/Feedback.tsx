@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import LeaderboardScreen from '@/components/screens/LeaderboardScreen'
+import CompetitiveScreen from '@/components/screens/CompetitiveScreen'
 import ControlScreen from '@/components/screens/ControlScreen'
 import IndividualScreen from '@/components/screens/IndividualScreen'
 import CooperativeScreen from '@/components/screens/CooperativeScreen'
@@ -49,7 +49,7 @@ export default function Feedback() {
     case 'control':
       return <ControlScreen onBack={() => navigate('/hunt')} />
     case 'competitive':
-      return <LeaderboardScreen onBack={() => navigate('/hunt')} participantCode={participantCode} />
+      return <CompetitiveScreen onBack={() => navigate('/hunt')} participantCode={participantCode} treatment={treatment} />
     case 'cooperative':
       return <CooperativeScreen onBack={() => navigate('/hunt')} />
     case 'individual':

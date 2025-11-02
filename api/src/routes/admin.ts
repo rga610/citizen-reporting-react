@@ -174,4 +174,26 @@ export default async function adminRoutes(app: FastifyInstance) {
 
     return reply.send({ status: "ok", participant });
   });
+
+  // Logout a specific user (admin only)
+  app.post("/api/admin/logout-user", async (req, reply) => {
+    if (!guard(req, reply)) return;
+
+    const { participantId } = req.body as { participantId?: string };
+    if (!participantId) {
+      return reply.code(400).send({ error: "participantId is required" });
+    }
+
+    const participant = await prisma.participant.findUnique({ where: { id: participantId } });
+    if (!participant) {
+      return reply.code(404).send({ error: "Participant not found" });
+    }
+
+    await prisma.participant.update({
+      where: { id: participantId },
+      data: { isActive: false }
+    });
+
+    return reply.send({ status: "ok", participant: { id: participant.id, publicCode: participant.publicCode, isActive: false } });
+  });
 }
