@@ -39,16 +39,24 @@ Once deployed, test these endpoints:
 - `POST /api/report` - Submits a scan/report
 
 ### 5. **Environment Variables**
-Ensure these are set in Railway (Service → Variables):
+
+**For API Service:**
 - `DATABASE_URL` ✅ (auto-connected from Postgres service)
 - `COOKIE_SECRET` ✅ (you configured this: `6BBEC9B84FA2C943B522749BDCDA2`)
 - `SESSION_SLOT` ✅ (you set: `1`)
 - `ADMIN_TOKEN` ✅ (you set: `21C34`)
 - `NODE_ENV=production`
 
-### 6. **Get Your API URL**
-- Railway provides an HTTPS domain like `https://xxx-production.up.railway.app`
-- Use this for testing the API endpoints
+**For Web Service (CRITICAL!):**
+- `VITE_API_URL` ⚠️ **MUST be set to your API service URL**
+  - Example: `https://citizen-reporting-api-production.up.railway.app`
+  - This tells the frontend where to send API requests
+  - **Without this, login and all API calls will fail!**
+
+### 6. **Get Your Service URLs**
+- Railway provides HTTPS domains for each service like `https://xxx-production.up.railway.app`
+- **API Service URL**: Use this for `VITE_API_URL` in the web service
+- **Web Service URL**: This is where users access the app
 
 ## 🧪 Test Locally (Optional)
 

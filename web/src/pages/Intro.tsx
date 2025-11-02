@@ -18,6 +18,17 @@ export default function Intro() {
     try {
       const { api } = await import('@/utils/api')
       const res = await api.login(username.trim())
+      
+      // Check content type before parsing JSON
+      const contentType = res.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text()
+        console.error('Non-JSON response from API:', text.substring(0, 200))
+        setError('Server returned an invalid response. Please check that the API service is configured correctly.')
+        setLoading(false)
+        return
+      }
+
       const data = await res.json()
 
       if (!res.ok) {
