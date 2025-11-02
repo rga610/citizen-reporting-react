@@ -18,21 +18,35 @@ export default function Feedback() {
   useEffect(() => {
     api
       .join()
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          // If 401, user needs to log in - redirect to login
+          if (res.status === 401) {
+            console.warn('[Feedback] Not authenticated, redirecting to login')
+            navigate('/')
+            return
+          }
+          throw new Error(`API error: ${res.status}`)
+        }
+        return res.json()
+      })
       .then((data) => {
-        if (data.publicCode) {
-          sessionStorage.setItem('participantCode', data.publicCode)
-          setParticipantCode(data.publicCode)
-        }
-        if (data.treatment) {
-          setTreatment(data.treatment)
+        if (data) {
+          if (data.publicCode) {
+            sessionStorage.setItem('participantCode', data.publicCode)
+            setParticipantCode(data.publicCode)
+          }
+          if (data.treatment) {
+            setTreatment(data.treatment)
+          }
         }
         setLoading(false)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[Feedback] Failed to fetch participant data:', err)
         setLoading(false)
       })
-  }, [])
+  }, [navigate])
 
   // Show loading state briefly
   if (loading) {

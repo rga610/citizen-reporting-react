@@ -7,20 +7,34 @@ export default function Hunt() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    void api
+    api
       .join()
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          // If 401, user needs to log in - redirect to login
+          if (res.status === 401) {
+            console.warn('[Hunt] Not authenticated, redirecting to login')
+            navigate('/')
+            return
+          }
+          throw new Error(`API error: ${res.status}`)
+        }
+        return res.json()
+      })
       .then((data) => {
-        // Store participantCode if we get it (new participant)
-        if (data.publicCode) {
-          sessionStorage.setItem('participantCode', data.publicCode)
+        if (data) {
+          // Store participantCode if we get it (new participant)
+          if (data.publicCode) {
+            sessionStorage.setItem('participantCode', data.publicCode)
+          }
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[Hunt] Failed to fetch participant data:', err)
         // Error already logged by api.join
         // Silently handle - app can work without backend connection
       })
-  }, [])
+  }, [navigate])
 
   return (
     <MapScreen

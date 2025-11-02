@@ -88,9 +88,9 @@ app.post("/api/login", async (req, reply) => {
 
   reply.setCookie("pid", participant.id, { 
     httpOnly: true, 
-    sameSite: "lax", 
+    sameSite: "none",  // Changed to "none" for cross-origin cookie support
     path: "/",
-    secure: process.env.NODE_ENV === "production"
+    secure: true  // Always true in production, required for sameSite: "none"
   });
   return reply.send({
     status: "ok",
@@ -115,8 +115,8 @@ app.post("/api/logout", async (req, reply) => {
       reply.clearCookie("pid", { 
         path: "/",
         httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
+        sameSite: "none",
+        secure: true
       });
       return reply.send({ status: "ok", message: "Session cleared" });
     }
@@ -131,8 +131,8 @@ app.post("/api/logout", async (req, reply) => {
     reply.clearCookie("pid", { 
       path: "/",
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+      sameSite: "none",
+      secure: true
     });
     return reply.send({ status: "ok", message: "Logged out successfully" });
   } catch (err) {
@@ -141,8 +141,8 @@ app.post("/api/logout", async (req, reply) => {
     reply.clearCookie("pid", { 
       path: "/",
       httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+      sameSite: "none",
+      secure: true
     });
     return reply.code(500).send({ error: "Failed to logout", message: "Session cleared but logout failed" });
   }
@@ -190,7 +190,12 @@ if (process.env.NODE_ENV !== "production") {
       data: { isActive: true }
     });
     
-    reply.setCookie("pid", participantId, { httpOnly: true, sameSite: "lax", path: "/" });
+    reply.setCookie("pid", participantId, { 
+      httpOnly: true, 
+      sameSite: "none", 
+      path: "/",
+      secure: true
+    });
     return reply.send({ 
       status: "switched", 
       publicCode: participant.publicCode, 
@@ -212,7 +217,12 @@ app.get("/api/join", async (req, reply) => {
   if (participant) {
     // Check if participant is still active (they logged in)
     if (!participant.isActive) {
-      reply.clearCookie("pid", { path: "/" });
+      reply.clearCookie("pid", { 
+        path: "/",
+        httpOnly: true,
+        sameSite: "none",
+        secure: true
+      });
       return reply.code(401).send({ error: "Session expired. Please log in again." });
     }
     const response: any = { status: "ok", publicCode: participant.publicCode, treatment: participant.treatment, totalReports: participant.totalReports };

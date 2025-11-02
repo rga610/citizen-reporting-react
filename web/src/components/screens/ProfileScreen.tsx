@@ -28,14 +28,28 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
   useEffect(() => {
     api
       .join()
-      .then((res) => res.json())
-      .then((data) => {
-        setParticipant(data)
+      .then((res) => {
+        if (!res.ok) {
+          // If 401, user needs to log in - redirect to login
+          if (res.status === 401) {
+            console.warn('[Profile] Not authenticated, redirecting to login')
+            navigate('/')
+            return
+          }
+          throw new Error(`API error: ${res.status}`)
+        }
+        return res.json()
       })
-      .catch(() => {
+      .then((data) => {
+        if (data) {
+          setParticipant(data)
+        }
+      })
+      .catch((err) => {
+        console.error('[Profile] Failed to fetch participant data:', err)
         // Error already logged by api.join
       })
-  }, [])
+  }, [navigate])
 
   const handleLogout = async () => {
     setLoggingOut(true)
