@@ -49,7 +49,7 @@ Once deployed, test these endpoints:
 
 **For Web Service (CRITICAL!):**
 - `VITE_API_URL` ⚠️ **MUST be set to your API service URL**
-  - Example: `https://citizen-reporting-api-production.up.railway.app`
+  - Example: `https://citizen-reporting-api.up.railway.app`
   - This tells the frontend where to send API requests
   - **Without this, login and all API calls will fail!**
 

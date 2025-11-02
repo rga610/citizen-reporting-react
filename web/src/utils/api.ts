@@ -3,7 +3,7 @@
 let API_URL = (import.meta.env.VITE_API_URL || (
   import.meta.env.DEV 
     ? "http://localhost:3000" 
-    : "https://citizen-reporting-react-production.up.railway.app"
+    : "https://citizen-reporting-api.up.railway.app"
 )).trim();
 
 // Ensure API_URL is always absolute (has protocol)
