@@ -29,7 +29,7 @@ model Participant {
   createdAt    DateTime  @default(now())
   scans        Scan[]
 
-  @@map("participant")
+  @@map("users")
 }
 
 model Issue {
