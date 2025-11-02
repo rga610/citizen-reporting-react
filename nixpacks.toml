@@ -3,11 +3,11 @@ nixPkgs = ["nodejs_22"]
 commands = ["corepack enable", "corepack prepare pnpm@9.12.0 --activate"]
 
 [phases.install]
-depCmds = ["cd api && pnpm install"]
+depCmds = ["pnpm install"]
 
 [phases.build]
-cmds = ["cd api && pnpm run generate && pnpm run build"]
+cmds = ["pnpm run generate && pnpm run build"]
 
 [start]
-cmd = "cd api && npx prisma migrate deploy --schema=prisma/schema.prisma && pnpm run start"
+cmd = "pnpm run start"
 
