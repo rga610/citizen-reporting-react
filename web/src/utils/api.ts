@@ -1,10 +1,9 @@
 // Use local API in development, Railway API in production
-// IMPORTANT: In production, set VITE_API_URL to your API service URL (not the web service URL!)
-// Example: https://citizen-reporting-api-production.up.railway.app
+// Can be overridden with VITE_API_URL environment variable
 const API_URL = import.meta.env.VITE_API_URL || (
   import.meta.env.DEV 
     ? "http://localhost:3000" 
-    : "" // Empty in production - MUST be set via VITE_API_URL environment variable
+    : "https://citizen-reporting-react-production.up.railway.app"
 );
 
 function handleError(error: unknown, context: string) {
