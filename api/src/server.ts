@@ -90,7 +90,8 @@ app.post("/api/login", async (req, reply) => {
     httpOnly: true, 
     sameSite: "none",  // Changed to "none" for cross-origin cookie support
     path: "/",
-    secure: true  // Always true in production, required for sameSite: "none"
+    secure: true,  // Always true in production, required for sameSite: "none"
+    partitioned: true  // Required for CHIPS compliance (cross-origin cookies)
   });
   return reply.send({
     status: "ok",
@@ -116,7 +117,8 @@ app.post("/api/logout", async (req, reply) => {
         path: "/",
         httpOnly: true,
         sameSite: "none",
-        secure: true
+        secure: true,
+        partitioned: true
       });
       return reply.send({ status: "ok", message: "Session cleared" });
     }
@@ -193,7 +195,8 @@ app.post("/api/dev/switch-user", async (req, reply) => {
     httpOnly: true, 
     sameSite: "none", 
     path: "/",
-    secure: true
+    secure: true,
+    partitioned: true  // Required for CHIPS compliance (cross-origin cookies)
   });
   return reply.send({ 
     status: "switched", 
@@ -219,7 +222,8 @@ app.get("/api/join", async (req, reply) => {
         path: "/",
         httpOnly: true,
         sameSite: "none",
-        secure: true
+        secure: true,
+        partitioned: true
       });
       return reply.code(401).send({ error: "Session expired. Please log in again." });
     }
@@ -234,7 +238,13 @@ app.get("/api/join", async (req, reply) => {
   }
   
   // Cookie exists but participant not found - clear cookie and require login
-  reply.clearCookie("pid", { path: "/" });
+  reply.clearCookie("pid", { 
+    path: "/",
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    partitioned: true
+  });
   return reply.code(401).send({ error: "Session invalid. Please log in again." });
 });
 
