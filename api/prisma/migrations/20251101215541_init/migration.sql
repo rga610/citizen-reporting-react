@@ -1,4 +1,4 @@
-﻿-- CreateTable
+-- CreateTable
 CREATE TABLE "Session" (
     "id" SERIAL NOT NULL,
     "slot" INTEGER NOT NULL,
