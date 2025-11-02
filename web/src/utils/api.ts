@@ -1,4 +1,5 @@
 // Use local API in development, Railway API in production
+// Can be overridden with VITE_API_URL environment variable
 const API_URL = import.meta.env.VITE_API_URL || (
   import.meta.env.DEV 
     ? "http://localhost:3000" 
