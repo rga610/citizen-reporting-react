@@ -148,62 +148,60 @@ app.post("/api/logout", async (req, reply) => {
   }
 });
 
-// Dev-only endpoints for testing (only in development)
-if (process.env.NODE_ENV !== "production") {
-  // List all participants with their treatments
-  app.get("/api/dev/participants", async (req, reply) => {
-    const slot = Number((req.query as any).slot || process.env.SESSION_SLOT || "1");
-    const session = await prisma.session.findFirst({ where: { slot }, orderBy: { id: "desc" } });
-    const participants = await prisma.participant.findMany({
-      where: session ? { sessionId: session.id } : undefined,
-      select: { id: true, publicCode: true, treatment: true, totalReports: true },
-      orderBy: { createdAt: "desc" },
-    });
-    return reply.send(participants);
+// Dev endpoints for testing (available in both dev and production)
+// List all participants with their treatments
+app.get("/api/dev/participants", async (req, reply) => {
+  const slot = Number((req.query as any).slot || process.env.SESSION_SLOT || "1");
+  const session = await prisma.session.findFirst({ where: { slot }, orderBy: { id: "desc" } });
+  const participants = await prisma.participant.findMany({
+    where: session ? { sessionId: session.id } : undefined,
+    select: { id: true, publicCode: true, treatment: true, totalReports: true },
+    orderBy: { createdAt: "desc" },
   });
+  return reply.send(participants);
+});
 
-  // Switch current user to a different participant
-  app.post("/api/dev/switch-user", async (req, reply) => {
-    const { participantId } = req.body as { participantId: string };
-    if (!participantId) {
-      return reply.code(400).send({ error: "participantId required" });
-    }
-    const participant = await prisma.participant.findUnique({ where: { id: participantId } });
-    if (!participant) {
-      return reply.code(404).send({ error: "Participant not found" });
-    }
-    
-    // Mark old user as inactive
-    const oldPid = req.cookies["pid"];
-    if (oldPid && oldPid !== participantId) {
-      await prisma.participant.update({
-        where: { id: oldPid },
-        data: { isActive: false }
-      }).catch(() => {
-        // Ignore errors
-      });
-    }
-    
-    // Mark new user as active
+// Switch current user to a different participant
+app.post("/api/dev/switch-user", async (req, reply) => {
+  const { participantId } = req.body as { participantId: string };
+  if (!participantId) {
+    return reply.code(400).send({ error: "participantId required" });
+  }
+  const participant = await prisma.participant.findUnique({ where: { id: participantId } });
+  if (!participant) {
+    return reply.code(404).send({ error: "Participant not found" });
+  }
+  
+  // Mark old user as inactive
+  const oldPid = req.cookies["pid"];
+  if (oldPid && oldPid !== participantId) {
     await prisma.participant.update({
-      where: { id: participantId },
-      data: { isActive: true }
+      where: { id: oldPid },
+      data: { isActive: false }
+    }).catch(() => {
+      // Ignore errors
     });
-    
-    reply.setCookie("pid", participantId, { 
-      httpOnly: true, 
-      sameSite: "none", 
-      path: "/",
-      secure: true
-    });
-    return reply.send({ 
-      status: "switched", 
-      publicCode: participant.publicCode, 
-      treatment: participant.treatment,
-      totalReports: participant.totalReports
-    });
+  }
+  
+  // Mark new user as active
+  await prisma.participant.update({
+    where: { id: participantId },
+    data: { isActive: true }
   });
-}
+  
+  reply.setCookie("pid", participantId, { 
+    httpOnly: true, 
+    sameSite: "none", 
+    path: "/",
+    secure: true
+  });
+  return reply.send({ 
+    status: "switched", 
+    publicCode: participant.publicCode, 
+    treatment: participant.treatment,
+    totalReports: participant.totalReports
+  });
+});
 
 // Participant info endpoint - requires login
 app.get("/api/join", async (req, reply) => {
