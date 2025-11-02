@@ -225,11 +225,13 @@ app.get("/api/join", async (req, reply) => {
       });
       return reply.code(401).send({ error: "Session expired. Please log in again." });
     }
-    const response: any = { status: "ok", publicCode: participant.publicCode, treatment: participant.treatment, totalReports: participant.totalReports };
-    // Include participant ID in dev mode for testing
-    if (process.env.NODE_ENV !== "production") {
-      response.participantId = participant.id;
-    }
+    const response: any = { 
+      status: "ok", 
+      publicCode: participant.publicCode, 
+      treatment: participant.treatment, 
+      totalReports: participant.totalReports,
+      participantId: participant.id  // Always include for dev panel to work
+    };
     return reply.send(response);
   }
   

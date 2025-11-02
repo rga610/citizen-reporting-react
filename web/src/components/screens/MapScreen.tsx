@@ -18,14 +18,12 @@ export interface MapScreenProps {
 }
 
 export function MapScreen({ onViewInsights, onEnterCode, onProfile }: MapScreenProps) {
-  const isDev = import.meta.env.DEV
+  // Enable dev panel in both dev and production (for testing)
   const [showDevPanel, setShowDevPanel] = useState(false)
   const menuClickCount = useRef(0)
   const menuClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleMenuClick = () => {
-    if (!isDev) return
-
     menuClickCount.current += 1
 
     // Clear existing timer
@@ -124,8 +122,8 @@ export function MapScreen({ onViewInsights, onEnterCode, onProfile }: MapScreenP
         </div>
       </div>
 
-      {/* Dev Panel - only shown in development */}
-      {isDev && showDevPanel && (
+      {/* Dev Panel - available in both dev and production */}
+      {showDevPanel && (
         <DevPanel
           onClose={() => setShowDevPanel(false)}
         />

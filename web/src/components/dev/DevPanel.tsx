@@ -34,6 +34,14 @@ export function DevPanel({ onClose }: DevPanelProps) {
         api.join()
       ])
       
+      if (!participantsRes.ok) {
+        throw new Error(`Failed to fetch participants: ${participantsRes.status}`)
+      }
+      
+      if (!joinRes.ok) {
+        throw new Error(`Failed to fetch current user: ${joinRes.status}`)
+      }
+      
       const participantsData = await participantsRes.json()
       const joinData = await joinRes.json()
       
@@ -51,6 +59,7 @@ export function DevPanel({ onClose }: DevPanelProps) {
       }
     } catch (err) {
       console.error('Failed to fetch participants:', err)
+      alert(`Failed to load participants: ${err instanceof Error ? err.message : 'Unknown error'}. Check console for details.`)
     } finally {
       setLoading(false)
     }
@@ -59,7 +68,12 @@ export function DevPanel({ onClose }: DevPanelProps) {
   const handleSwitchUser = async (participantId: string) => {
     setSwitching(participantId)
     try {
-      await api.dev.switchUser(participantId)
+      const res = await api.dev.switchUser(participantId)
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        throw new Error(`Failed to switch user: ${errorData.error || res.statusText}`)
+      }
+      
       setCurrentUserId(participantId)
       // Clear sessionStorage to force refresh
       sessionStorage.removeItem('participantCode')
@@ -67,7 +81,7 @@ export function DevPanel({ onClose }: DevPanelProps) {
       window.location.reload()
     } catch (err) {
       console.error('Failed to switch user:', err)
-      alert('Failed to switch user. Check console for details.')
+      alert(`Failed to switch user: ${err instanceof Error ? err.message : 'Unknown error'}. Check console for details.`)
     } finally {
       setSwitching(null)
     }
