@@ -25,5 +25,5 @@ ALTER TABLE "reports" RENAME CONSTRAINT "Scan_sessionId_fkey" TO "reports_sessio
 -- RenameIndexes
 ALTER INDEX "Scan_sessionId_issueId_idx" RENAME TO "reports_sessionId_issueId_idx";
 ALTER INDEX "Scan_sessionId_idx" RENAME TO "reports_sessionId_idx";
-ALTER UNIQUE INDEX "Scan_participantId_issueId_key" RENAME TO "reports_participantId_issueId_key";
+ALTER INDEX "Scan_participantId_issueId_key" RENAME TO "reports_participantId_issueId_key";
 
