@@ -313,6 +313,136 @@ git push origin main
 
 ---
 
+---
+
+## 🚀 Railway Pre-Deploy Command Patterns
+
+### Standard Pattern (99% of the time)
+
+**Pre-deploy Command:**
+```
+npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+**When to use:** Normal deployments with new migrations or when everything is working.
+
+**What it does:**
+- Applies pending migrations
+- Skips already-applied migrations
+- Fails if migrations are in a failed state
+- Keeps database in sync
+
+---
+
+### Recovery Patterns (Only when migrations fail)
+
+#### Pattern 1: Migration Partially Applied (Tables created but migration failed)
+
+**Pre-deploy Command:**
+```
+npx prisma migrate resolve --applied MIGRATION_NAME && npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+**When to use:** Tables already exist from a failed migration.
+
+**Example:**
+```
+npx prisma migrate resolve --applied 20251101215541_init && npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+**After this succeeds:** Switch back to standard pattern.
+
+---
+
+#### Pattern 2: Migration Failed and Needs Retry
+
+**Pre-deploy Command:**
+```
+npx prisma migrate resolve --rolled-back MIGRATION_NAME && npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+**When to use:** Migration failed, you fixed the migration file, and want to retry.
+
+**Example:**
+```
+npx prisma migrate resolve --rolled-back 20251102103611_rename_tables_to_snake_case && npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+**After this succeeds:** Switch back to standard pattern.
+
+---
+
+#### Pattern 3: One-Time Fix, Then Normal Deploy
+
+**Option A: Run resolve command separately** (Recommended)
+1. Temporarily set Pre-deploy to: `npx prisma migrate resolve --applied MIGRATION_NAME`
+2. Deploy once
+3. Switch back to: `npx prisma migrate deploy --schema=prisma/schema.prisma`
+
+**Option B: Combined command**
+```
+npx prisma migrate resolve --applied MIGRATION_NAME && npx prisma migrate deploy --schema=prisma/schema.prisma
+```
+
+---
+
+### Decision Tree
+
+```
+Is migration state normal? (no failed migrations)
+├─ YES → Use STANDARD PATTERN
+│         npx prisma migrate deploy --schema=prisma/schema.prisma
+│
+└─ NO → Migration failed?
+    ├─ Tables already exist? → Use PATTERN 1 (--applied)
+    │   npx prisma migrate resolve --applied NAME && npx prisma migrate deploy ...
+    │
+    └─ Need to retry migration? → Use PATTERN 2 (--rolled-back)
+        npx prisma migrate resolve --rolled-back NAME && npx prisma migrate deploy ...
+```
+
+---
+
+### Best Practices for Pre-Deploy Commands
+
+1. **Default to standard pattern** - Use `migrate deploy` for normal operations
+2. **Use recovery patterns only when needed** - Only when migrations fail
+3. **Switch back after recovery** - Always return to standard pattern after fixing
+4. **Monitor deployment logs** - Check logs to catch issues early
+5. **Don't leave recovery commands permanently** - They're temporary fixes
+
+---
+
+### Example Workflow
+
+**Normal Deployment:**
+```
+Pre-deploy: npx prisma migrate deploy --schema=prisma/schema.prisma
+Start: pnpm run start
+```
+
+**After Fixing Failed Migration:**
+```
+Pre-deploy: npx prisma migrate resolve --applied 20251101215541_init
+Start: pnpm run start
+```
+(Deploy once, then switch back)
+
+**Next Deployment:**
+```
+Pre-deploy: npx prisma migrate deploy --schema=prisma/schema.prisma
+Start: pnpm run start
+```
+
+**Summary:**
+- **Standard:** `npx prisma migrate deploy --schema=prisma/schema.prisma` (use this always)
+- **Recovery:** Use `--applied` or `--rolled-back` only when needed, then switch back
+- **Permanent:** Keep standard pattern set in Railway
+
+**Key Rule:** Recovery commands are temporary fixes - always switch back to standard pattern after recovery succeeds.
+
+---
+
 ## 📚 Additional Resources
 
 - [Prisma Migration Troubleshooting](https://www.prisma.io/docs/guides/database/production-troubleshooting)
