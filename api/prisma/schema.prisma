@@ -14,6 +14,8 @@ model Session {
   endTs    DateTime?
   scans    Scan[]
   parts    Participant[]
+
+  @@map("sessions")
 }
 
 model Participant {
@@ -26,12 +28,16 @@ model Participant {
   isActive     Boolean   @default(false)
   createdAt    DateTime  @default(now())
   scans        Scan[]
+
+  @@map("participant")
 }
 
 model Issue {
   id          String  @id
   sessionSlot Int
   scans       Scan[]
+
+  @@map("issues")
 }
 
 model Scan {
@@ -52,4 +58,5 @@ model Scan {
   @@unique([participantId, issueId])
   @@index([sessionId, issueId])
   @@index([sessionId])
+  @@map("reports")
 }
