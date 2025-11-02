@@ -9,5 +9,5 @@ depCmds = ["pnpm install"]
 cmds = ["pnpm run generate && pnpm run build"]
 
 [start]
-cmd = "pnpm run start"
+cmd = "pnpm run migrate:deploy && pnpm run start"
 
