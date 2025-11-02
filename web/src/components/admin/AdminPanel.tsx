@@ -67,7 +67,6 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
   }
 
   const handleResetGroup = async (treatment: string) => {
-    const groupLetter = getGroupLetter(treatment)
     const actionKey = `reset-group-${treatment}`
     setActiveActions({ ...activeActions, [actionKey]: true })
     

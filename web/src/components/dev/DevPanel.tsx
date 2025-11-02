@@ -7,7 +7,6 @@ import { getGroupLetter } from '@/utils/treatment'
 
 export interface DevPanelProps {
   onClose: () => void
-  onSwitchUser: () => void
 }
 
 interface Participant {
@@ -17,7 +16,7 @@ interface Participant {
   totalReports: number
 }
 
-export function DevPanel({ onClose, onSwitchUser }: DevPanelProps) {
+export function DevPanel({ onClose }: DevPanelProps) {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
