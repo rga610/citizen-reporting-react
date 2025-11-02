@@ -23,6 +23,7 @@ model Participant {
   session      Session   @relation(fields: [sessionId], references: [id])
   treatment    String
   totalReports Int       @default(0)
+  isActive     Boolean   @default(false)
   createdAt    DateTime  @default(now())
   scans        Scan[]
 }

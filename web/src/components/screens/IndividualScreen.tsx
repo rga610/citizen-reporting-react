@@ -1,0 +1,79 @@
+import { User, ChevronLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { wuTypography } from '@/theme/wu'
+import { useEffect, useState } from 'react'
+import { api } from '@/utils/api'
+
+export interface IndividualScreenProps {
+  onBack?: () => void
+  participantCode?: string
+}
+
+export function IndividualScreen({ onBack, participantCode }: IndividualScreenProps) {
+  const [myCount, setMyCount] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Fetch initial count
+    api
+      .join()
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.totalReports !== undefined) {
+          setMyCount(data.totalReports)
+        }
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+
+    // Also listen to SSE for updates (though individual treatment doesn't send leaderboard)
+    // We'll update from report responses instead
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-white px-4 py-8 flex flex-col">
+      <div className="max-w-md mx-auto w-full flex flex-col gap-6 animate-fade-in">
+        <div className="rounded-2xl border border-[var(--wu-muted)] bg-[var(--wu-muted)]/60 px-5 py-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--wu-primary)] shadow-soft flex-shrink-0">
+              <User className="h-6 w-6" strokeWidth={2.4} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={wuTypography.secondary + ' uppercase tracking-[0.3em] text-xs mb-1'}>
+                Individual feedback
+              </p>
+              <p className="text-sm text-[var(--wu-text)] leading-relaxed">
+                Your personal contribution to improving campus
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-[#E0E0E0]">
+            <div className="text-center">
+              <p className="text-4xl font-bold text-[var(--wu-primary)] mb-2">
+                {loading ? '...' : myCount}
+              </p>
+              <p className="text-sm text-[var(--wu-text-secondary)]">
+                {myCount === 1 ? 'Report submitted' : 'Reports submitted'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <Button
+            className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white"
+            onClick={onBack}
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default IndividualScreen
+

@@ -62,15 +62,41 @@ export default async function reportRoutes(app: FastifyInstance) {
     }
 
     if (part.treatment === "cooperative") {
-      const distinct = await prisma.scan.findMany({ where: { sessionId: session.id }, select: { issueId: true }, distinct: ["issueId"] });
-      const found = distinct.length;
+      // CRITICAL: Only count scans from cooperative group members
+      // This ensures experiment integrity - each group sees only their own progress
+      const cooperativeParticipants = await prisma.participant.findMany({
+        where: {
+          sessionId: session.id,
+          treatment: "cooperative"
+        },
+        select: { id: true }
+      });
+      const cooperativeParticipantIds = cooperativeParticipants.map(p => p.id);
+
+      // Count distinct issues found ONLY by cooperative group members
+      // If no cooperative participants exist yet, found count is 0
+      let found = 0;
+      if (cooperativeParticipantIds.length > 0) {
+        const cooperativeDistinctScans = await prisma.scan.findMany({
+          where: {
+            sessionId: session.id,
+            participantId: { in: cooperativeParticipantIds }
+          },
+          select: { issueId: true },
+          distinct: ["issueId"]
+        });
+        found = cooperativeDistinctScans.length;
+      }
       const total = await prisma.issue.count({ where: { sessionSlot: envSlot } });
       return reply.send({ status: "ok", treatment: part.treatment, feedback: { found, total, period_id: period } });
     }
 
     if (part.treatment === "competitive") {
       const top = await prisma.participant.findMany({
-        where: { sessionId: session.id },
+        where: { 
+          sessionId: session.id,
+          treatment: part.treatment // Filter by treatment group
+        },
         select: { publicCode: true, totalReports: true },
         orderBy: { totalReports: "desc" },
         take: 5
