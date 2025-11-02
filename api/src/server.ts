@@ -51,10 +51,10 @@ app.post("/api/login", async (req, reply) => {
     return reply.code(400).send({ error: "No active session found" });
   }
 
-  // Find participant by username (publicCode) in current session
+  // Find participant by username in current session
   const participant = await prisma.participant.findFirst({
     where: {
-      publicCode: username.trim(),
+      username: username.trim(),
       sessionId: session.id
     }
   });
@@ -95,7 +95,7 @@ app.post("/api/login", async (req, reply) => {
   });
   return reply.send({
     status: "ok",
-    publicCode: participant.publicCode,
+    username: participant.username,
     treatment: participant.treatment,
     totalReports: participant.totalReports
   });
@@ -157,7 +157,7 @@ app.get("/api/dev/participants", async (req, reply) => {
   const session = await prisma.session.findFirst({ where: { slot }, orderBy: { id: "desc" } });
   const participants = await prisma.participant.findMany({
     where: session ? { sessionId: session.id } : undefined,
-    select: { id: true, publicCode: true, treatment: true, totalReports: true },
+    select: { id: true, username: true, treatment: true, totalReports: true },
     orderBy: { createdAt: "desc" },
   });
   return reply.send(participants);
@@ -200,7 +200,7 @@ app.post("/api/dev/switch-user", async (req, reply) => {
   });
   return reply.send({ 
     status: "switched", 
-    publicCode: participant.publicCode, 
+    username: participant.username, 
     treatment: participant.treatment,
     totalReports: participant.totalReports
   });
@@ -214,7 +214,7 @@ app.get("/api/join", async (req, reply) => {
   }
   
   // Existing participant - return their info
-  const participant = await prisma.participant.findUnique({ where: { id: pid }, select: { id: true, publicCode: true, treatment: true, totalReports: true, isActive: true } });
+  const participant = await prisma.participant.findUnique({ where: { id: pid }, select: { id: true, username: true, treatment: true, totalReports: true, isActive: true } });
   if (participant) {
     // Check if participant is still active (they logged in)
     if (!participant.isActive) {
@@ -229,7 +229,7 @@ app.get("/api/join", async (req, reply) => {
     }
     const response: any = { 
       status: "ok", 
-      publicCode: participant.publicCode, 
+      username: participant.username, 
       treatment: participant.treatment, 
       totalReports: participant.totalReports,
       participantId: participant.id  // Always include for dev panel to work

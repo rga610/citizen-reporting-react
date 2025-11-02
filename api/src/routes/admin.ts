@@ -95,7 +95,7 @@ export default async function adminRoutes(app: FastifyInstance) {
       where: { sessionId: session.id },
       select: { 
         id: true, 
-        publicCode: true, 
+        username: true, 
         treatment: true, 
         totalReports: true,
         isActive: true
@@ -147,7 +147,7 @@ export default async function adminRoutes(app: FastifyInstance) {
     const participant = await prisma.participant.update({
       where: { id: participantId },
       data: { totalReports: 0 },
-      select: { id: true, publicCode: true, totalReports: true }
+      select: { id: true, username: true, totalReports: true }
     });
 
     return reply.send({ status: "ok", participant });
@@ -169,7 +169,7 @@ export default async function adminRoutes(app: FastifyInstance) {
     const participant = await prisma.participant.update({
       where: { id: participantId },
       data: { totalReports: score },
-      select: { id: true, publicCode: true, totalReports: true }
+      select: { id: true, username: true, totalReports: true }
     });
 
     return reply.send({ status: "ok", participant });
@@ -194,6 +194,6 @@ export default async function adminRoutes(app: FastifyInstance) {
       data: { isActive: false }
     });
 
-    return reply.send({ status: "ok", participant: { id: participant.id, publicCode: participant.publicCode, isActive: false } });
+    return reply.send({ status: "ok", participant: { id: participant.id, username: participant.username, isActive: false } });
   });
 }

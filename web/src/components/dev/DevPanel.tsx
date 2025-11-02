@@ -11,7 +11,7 @@ export interface DevPanelProps {
 
 interface Participant {
   id: string
-  publicCode: string
+  username: string
   treatment: string
   totalReports: number
 }
@@ -50,9 +50,9 @@ export function DevPanel({ onClose }: DevPanelProps) {
       // Get current user's participant ID (available in dev mode)
       if (joinData.participantId) {
         setCurrentUserId(joinData.participantId)
-      } else if (joinData.publicCode) {
-        // Fallback: find by publicCode (might not be unique, but better than nothing)
-        const current = participantsData.find((p: Participant) => p.publicCode === joinData.publicCode)
+      } else if (joinData.username) {
+        // Fallback: find by username (might not be unique, but better than nothing)
+        const current = participantsData.find((p: Participant) => p.username === joinData.username)
         if (current) {
           setCurrentUserId(current.id)
         }
@@ -158,7 +158,7 @@ export function DevPanel({ onClose }: DevPanelProps) {
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-[var(--wu-text-secondary)]" strokeWidth={2} />
                             <span className="font-medium text-[var(--wu-text)]">
-                              {participant.publicCode}
+                              {participant.username}
                             </span>
                             {isCurrent && (
                               <span className="text-xs text-[var(--wu-primary)] font-semibold">

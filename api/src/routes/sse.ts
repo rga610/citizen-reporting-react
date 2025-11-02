@@ -57,7 +57,7 @@ export default async function sseRoutes(app: FastifyInstance) {
         const cooperativeDistinctScans = await prisma.scan.findMany({
           where: {
             sessionId: session.id,
-            participantId: { in: cooperativeParticipantIds }
+            userId: { in: cooperativeParticipantIds }
           },
           select: { issueId: true },
           distinct: ["issueId"]
@@ -71,7 +71,7 @@ export default async function sseRoutes(app: FastifyInstance) {
       // Filter leaderboard by treatment group (users only see their own group)
       // CRITICAL: Only send competitive leaderboard if we have a valid treatment
       // If treatment is undefined, send empty array to prevent showing all participants
-      let top: Array<{ publicCode: string; totalReports: number }> = [];
+      let top: Array<{ username: string; totalReports: number }> = [];
       let totalParticipantsInGroup = 0;
       let userRank: number | undefined;
       let userScore: number | undefined;
@@ -83,13 +83,13 @@ export default async function sseRoutes(app: FastifyInstance) {
             sessionId: session.id,
             treatment
           },
-          select: { id: true, publicCode: true, totalReports: true },
+          select: { id: true, username: true, totalReports: true },
           orderBy: { totalReports: "desc" }
         });
 
         // Use all participants for the leaderboard
-        top = allParticipantsInGroup.map((p: { publicCode: string; totalReports: number }) => ({
-          publicCode: p.publicCode,
+        top = allParticipantsInGroup.map((p: { username: string; totalReports: number }) => ({
+          username: p.username,
           totalReports: p.totalReports
         }));
 

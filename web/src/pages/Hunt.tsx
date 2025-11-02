@@ -24,8 +24,8 @@ export default function Hunt() {
       .then((data) => {
         if (data) {
           // Store participantCode if we get it (new participant)
-          if (data.publicCode) {
-            sessionStorage.setItem('participantCode', data.publicCode)
+          if (data.username) {
+            sessionStorage.setItem('participantCode', data.username)
           }
         }
       })

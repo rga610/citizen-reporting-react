@@ -32,9 +32,9 @@ export default function Feedback() {
       })
       .then((data) => {
         if (data) {
-          if (data.publicCode) {
-            sessionStorage.setItem('participantCode', data.publicCode)
-            setParticipantCode(data.publicCode)
+          if (data.username) {
+            sessionStorage.setItem('participantCode', data.username)
+            setParticipantCode(data.username)
           }
           if (data.treatment) {
             setTreatment(data.treatment)

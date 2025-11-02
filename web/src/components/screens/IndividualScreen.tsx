@@ -41,7 +41,7 @@ export function IndividualScreen({ onBack, participantCode }: IndividualScreenPr
           setLoading(false)
         } else if (update.type === 'comp' && update.userScore !== undefined && participantCode) {
           // Fallback: Update from competitive SSE data if individual type not available
-          const userInTop = update.top?.find((entry: any) => entry.publicCode === participantCode)
+          const userInTop = update.top?.find((entry: any) => entry.username === participantCode)
           if (userInTop) {
             setMyCount(userInTop.totalReports)
             setLoading(false)

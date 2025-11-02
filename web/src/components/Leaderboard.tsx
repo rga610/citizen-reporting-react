@@ -1,5 +1,5 @@
 interface LeaderboardEntry {
-  publicCode: string;
+  username: string;
   totalReports: number;
 }
 
@@ -51,10 +51,10 @@ export default function Leaderboard({
           <p className="text-gray-500 text-center py-8">No participants yet</p>
         ) : (
           entries.map((entry, index) => {
-            const isUser = entry.publicCode === userCode;
+            const isUser = entry.username === userCode;
             return (
               <div
-                key={entry.publicCode}
+                key={entry.username}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                   isUser 
                     ? "bg-blue-50 border-2 border-blue-500" 
@@ -79,7 +79,7 @@ export default function Leaderboard({
                 {/* Username */}
                 <div className="flex-1">
                   <p className={`font-medium ${isUser ? "text-blue-700" : "text-gray-800"}`}>
-                    {entry.publicCode}
+                    {entry.username}
                     {isUser && " (You)"}
                   </p>
                 </div>

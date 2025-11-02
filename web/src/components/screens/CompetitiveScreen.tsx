@@ -21,7 +21,7 @@ function generateFeedbackMessage(
   rank: number,
   totalPlayers: number,
   userScore: number,
-  leaderboard: Array<{ publicCode: string; totalReports: number }>
+  leaderboard: Array<{ username: string; totalReports: number }>
 ): FeedbackMessage {
   const leaderScore = leaderboard.length > 0 ? leaderboard[0].totalReports : 0
   const pointsBehindLeader = leaderScore - userScore
@@ -82,7 +82,7 @@ function generateFeedbackMessage(
 }
 
 export function CompetitiveScreen({ onBack, participantCode, treatment }: CompetitiveScreenProps) {
-  const [leaderboard, setLeaderboard] = useState<Array<{ publicCode: string; totalReports: number }>>([])
+  const [leaderboard, setLeaderboard] = useState<Array<{ username: string; totalReports: number }>>([])
   const [feedbackMessage, setFeedbackMessage] = useState<FeedbackMessage | null>(null)
   const leaderboardRef = useRef<HTMLUListElement>(null)
   const userEntryRef = useRef<HTMLLIElement>(null)
@@ -96,7 +96,7 @@ export function CompetitiveScreen({ onBack, participantCode, treatment }: Compet
       try {
         const update = JSON.parse(e.data)
         if (update.type === 'comp' && update.top) {
-          const entries = update.top as Array<{ publicCode: string; totalReports: number }>
+          const entries = update.top as Array<{ username: string; totalReports: number }>
           setLeaderboard(entries)
           
           if (participantCode) {
@@ -106,9 +106,9 @@ export function CompetitiveScreen({ onBack, participantCode, treatment }: Compet
             const totalParticipantsInGroup = update.totalParticipantsInGroup || 0;
 
             // Get rank from leaderboard position (user should always be in entries since we show all participants)
-            const userEntryInTop = entries.find((e) => e.publicCode === participantCode)
+            const userEntryInTop = entries.find((e) => e.username === participantCode)
             if (userEntryInTop) {
-              userRank = entries.findIndex((e) => e.publicCode === participantCode) + 1
+              userRank = entries.findIndex((e) => e.username === participantCode) + 1
               userScore = userEntryInTop.totalReports
             }
 
@@ -175,9 +175,9 @@ export function CompetitiveScreen({ onBack, participantCode, treatment }: Compet
 
   const leaderboardEntries = leaderboard.map((entry, index) => ({
     rank: index + 1,
-    name: entry.publicCode,
+    name: entry.username,
     points: entry.totalReports,
-    isCurrentUser: entry.publicCode === participantCode,
+    isCurrentUser: entry.username === participantCode,
   }))
 
   return (

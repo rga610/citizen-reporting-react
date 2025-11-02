@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 
 interface Participant {
   id: string
-  publicCode: string
+  username: string
   treatment: string
   totalReports: number
   isActive: boolean
@@ -273,7 +273,7 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="flex flex-col min-w-0">
                                   <span className="font-medium text-[var(--wu-text)] truncate">
-                                    {participant.publicCode}
+                                    {participant.username}
                                   </span>
                                   {participant.isActive && (
                                     <span className="text-xs text-[var(--wu-primary)] font-semibold">
@@ -340,7 +340,7 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
                                 {/* Reset User Button */}
                                 <button
                                   onClick={() => {
-                                    if (confirm(`Reset score for ${participant.publicCode}?`)) {
+                                    if (confirm(`Reset score for ${participant.username}?`)) {
                                       handleResetUser(participant.id)
                                     }
                                   }}
@@ -359,7 +359,7 @@ export function AdminPanel({ adminToken, onClose }: AdminPanelProps) {
                                 {participant.isActive && (
                                   <button
                                     onClick={() => {
-                                      if (confirm(`Log out ${participant.publicCode}?`)) {
+                                      if (confirm(`Log out ${participant.username}?`)) {
                                         handleLogoutUser(participant.id)
                                       }
                                     }}

@@ -10,8 +10,8 @@ datasource db {
 model Session {
   id       Int           @id @default(autoincrement())
   slot     Int
-  startTs  DateTime
-  endTs    DateTime?
+  startTs  DateTime      @map("start_ts")
+  endTs    DateTime?     @map("end_ts")
   scans    Scan[]
   parts    Participant[]
 
@@ -20,13 +20,13 @@ model Session {
 
 model Participant {
   id           String    @id @default(uuid())
-  publicCode   String
-  sessionId    Int
+  username     String    @map("username")
+  sessionId    Int       @map("session_id")
   session      Session   @relation(fields: [sessionId], references: [id])
   treatment    String
-  totalReports Int       @default(0)
-  isActive     Boolean   @default(false)
-  createdAt    DateTime  @default(now())
+  totalReports Int       @default(0) @map("total_reports")
+  isActive     Boolean   @default(false) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
   scans        Scan[]
 
   @@map("users")
@@ -34,7 +34,7 @@ model Participant {
 
 model Issue {
   id          String  @id
-  sessionSlot Int
+  sessionSlot Int     @map("session_slot")
   scans       Scan[]
 
   @@map("issues")
@@ -42,20 +42,20 @@ model Issue {
 
 model Scan {
   id            BigInt       @id @default(autoincrement())
-  participantId String
-  participant   Participant  @relation(fields: [participantId], references: [id])
+  userId        String       @map("user_id")
+  participant   Participant  @relation(fields: [userId], references: [id])
   treatment     String
-  issueId       String
+  issueId       String       @map("issue_id")
   issue         Issue        @relation(fields: [issueId], references: [id])
-  sessionId     Int
+  sessionId     Int          @map("session_id")
   session       Session      @relation(fields: [sessionId], references: [id])
-  periodId      Int
+  periodId      Int          @map("period_id")
   lat           Float?
   lon           Float?
   accuracy      Float?
   ts            DateTime     @default(now())
 
-  @@unique([participantId, issueId])
+  @@unique([userId, issueId])
   @@index([sessionId, issueId])
   @@index([sessionId])
   @@map("reports")

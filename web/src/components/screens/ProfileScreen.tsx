@@ -11,7 +11,7 @@ export interface ProfileScreenProps {
 }
 
 interface ParticipantData {
-  publicCode?: string
+  username?: string
   treatment?: string
   totalReports?: number
   email?: string
@@ -80,7 +80,7 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
   }
 
   const groupLetter = participant?.treatment ? getGroupLetter(participant.treatment) : '?'
-  const displayName = participant?.publicCode || 'Participant'
+  const displayName = participant?.username || 'Participant'
 
   // Profile details - only show email and group assignment (phone, age, gender hidden as not relevant)
   const profileDetails = [

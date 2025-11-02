@@ -61,7 +61,7 @@ async function main() {
   ];
 
   const treatments = ["control", "competitive", "cooperative", "individual"];
-  const participants: Array<{ id: string; publicCode: string; treatment: string; sessionId: number }> = [];
+  const participants: Array<{ id: string; username: string; treatment: string; sessionId: number }> = [];
   
   let nicknameIndex = 0;
 
@@ -69,12 +69,12 @@ async function main() {
   for (const treatment of treatments) {
     for (let i = 0; i < 10; i++) {
       const id = crypto.randomUUID();
-      const publicCode = nicknames[nicknameIndex % nicknames.length];
+      const username = nicknames[nicknameIndex % nicknames.length];
       nicknameIndex++;
       
       participants.push({
         id,
-        publicCode,
+        username,
         treatment,
         sessionId: session.id
       });
@@ -87,7 +87,7 @@ async function main() {
     await prisma.participant.createMany({
       data: participants.map(p => ({
         id: p.id,
-        publicCode: p.publicCode,
+        username: p.username,
         treatment: p.treatment,
         sessionId: p.sessionId,
         totalReports: 0
@@ -101,7 +101,7 @@ async function main() {
 
   // Verify skinny_deer was created
   const skinnyDeer = await prisma.participant.findFirst({
-    where: { publicCode: "skinny_deer" }
+    where: { username: "skinny_deer" }
   });
 
   console.log(`Seeded ${participants.length} participants (10 per treatment group) for session slot ${sessionSlot}`);

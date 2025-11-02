@@ -23,7 +23,7 @@ export default async function reportRoutes(app: FastifyInstance) {
     if (!part) return reply.code(401).send({ error: "no participant" });
 
     const dup = await prisma.scan.findFirst({
-      where: { participantId: pid, issueId: issue_id }
+      where: { userId: pid, issueId: issue_id }
     });
     if (dup) return reply.send({ status: "duplicate", message: "Already reported" });
 
@@ -37,7 +37,7 @@ export default async function reportRoutes(app: FastifyInstance) {
 
     await prisma.scan.create({
       data: {
-        participantId: pid,
+        userId: pid,
         treatment: part.treatment,
         issueId: issue_id,
         sessionId: session.id,
@@ -80,7 +80,7 @@ export default async function reportRoutes(app: FastifyInstance) {
         const cooperativeDistinctScans = await prisma.scan.findMany({
           where: {
             sessionId: session.id,
-            participantId: { in: cooperativeParticipantIds }
+            userId: { in: cooperativeParticipantIds }
           },
           select: { issueId: true },
           distinct: ["issueId"]
@@ -97,7 +97,7 @@ export default async function reportRoutes(app: FastifyInstance) {
           sessionId: session.id,
           treatment: part.treatment // Filter by treatment group
         },
-        select: { publicCode: true, totalReports: true },
+        select: { username: true, totalReports: true },
         orderBy: { totalReports: "desc" },
         take: 5
       });

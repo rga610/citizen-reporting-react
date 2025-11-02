@@ -44,8 +44,8 @@ export default function Intro() {
       }
 
       // Store participant code in sessionStorage
-      if (data.publicCode) {
-        sessionStorage.setItem('participantCode', data.publicCode)
+      if (data.username) {
+        sessionStorage.setItem('participantCode', data.username)
       }
 
       // Navigate to hunt/map screen
