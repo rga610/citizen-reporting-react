@@ -40,7 +40,17 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
   const handleLogout = async () => {
     setLoggingOut(true)
     try {
-      await api.logout()
+      const res = await api.logout()
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error('Logout failed:', data)
+        // Still clear local storage and navigate even if API fails
+        sessionStorage.removeItem('participantCode')
+        navigate('/')
+        return
+      }
+
       // Clear sessionStorage
       sessionStorage.removeItem('participantCode')
       // Navigate to login screen
@@ -58,26 +68,35 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
   const groupLetter = participant?.treatment ? getGroupLetter(participant.treatment) : '?'
   const displayName = participant?.publicCode || 'Participant'
 
-  // Profile details - email, phone, age, gender (will be populated when available)
+  // Profile details - only show email and group assignment (phone, age, gender hidden as not relevant)
   const profileDetails = [
     { label: 'Email', value: participant?.email || 'Not provided' },
-    { label: 'Phone Number', value: participant?.phone || 'Not provided' },
-    { label: 'Age', value: participant?.age?.toString() || 'Not provided' },
-    { label: 'Gender', value: participant?.gender || 'Not provided' },
   ]
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 flex flex-col">
-      <div className="max-w-md mx-auto w-full flex flex-col gap-6 animate-fade-in">
-        {/* Welcome Section */}
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wu-background)] border border-[var(--wu-muted)] flex-shrink-0">
-            <UserRound className="h-8 w-8 text-[var(--wu-text-secondary)]" strokeWidth={2} />
+      <div className="max-w-md mx-auto w-full flex flex-col gap-6 animate-fade-in flex-1">
+        {/* Welcome Section with Logout */}
+        <div className="flex items-center gap-4 justify-between">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--wu-background)] border border-[var(--wu-muted)] flex-shrink-0">
+              <UserRound className="h-8 w-8 text-[var(--wu-text-secondary)]" strokeWidth={2} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-[var(--wu-text-secondary)]">Welcome back!</p>
+              <p className={wuTypography.heading + ' text-xl leading-tight'}>{displayName}</p>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-[var(--wu-text-secondary)]">Welcome back!</p>
-            <p className={wuTypography.heading + ' text-xl leading-tight'}>{displayName}</p>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-[var(--wu-text-secondary)] hover:text-[var(--wu-text)] hover:bg-[var(--wu-muted)]"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            title={loggingOut ? 'Logging out...' : 'Logout'}
+          >
+            <LogOut className="h-5 w-5" strokeWidth={2} />
+          </Button>
         </div>
 
         {/* Profile Details Box */}
@@ -108,42 +127,28 @@ export function ProfileScreen({ onBack }: ProfileScreenProps) {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <Button className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white">
-            Terms &amp; Policy
+          <Button className="w-full bg-[var(--wu-primary)] hover:bg-[var(--wu-primaryDark)] text-white">
+            Terms &amp; Conditions
           </Button>
-          <Button className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white">
+          <Button className="w-full bg-[var(--wu-primary)] hover:bg-[var(--wu-primaryDark)] text-white">
             Edit profile
           </Button>
-          <Button className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white">
+          <Button className="w-full bg-[var(--wu-primary)] hover:bg-[var(--wu-primaryDark)] text-white">
             About the experiment
           </Button>
-          <Button className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white">
+          <Button className="w-full bg-[var(--wu-primary)] hover:bg-[var(--wu-primaryDark)] text-white">
             Withdraw from  experiment :(
           </Button>
         </div>
+      </div>
 
-        {/* Logout Button */}
-        <div className="pt-2">
-          <Button
-            variant="outline"
-            className="w-full border-2 border-[var(--wu-text-secondary)] text-[var(--wu-text-secondary)] hover:bg-[var(--wu-text-secondary)] hover:text-white"
-            onClick={handleLogout}
-            disabled={loggingOut}
-          >
-            <LogOut className="h-4 w-4 mr-2" strokeWidth={2} />
-            {loggingOut ? 'Logging out...' : 'Logout'}
-          </Button>
-        </div>
-
-        {/* Back Button */}
-        <div className="pt-2">
-          <Button
-            className="w-full bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white"
-            onClick={onBack}
-          >
-            Back
-          </Button>
-        </div>
+      <div className="max-w-md mx-auto w-full pb-4 flex justify-center">
+        <Button
+          className="bg-[var(--wu-text)] hover:bg-[var(--wu-text)]/90 text-white rounded-full px-6 py-2 shadow-soft"
+          onClick={onBack}
+        >
+          BACK
+        </Button>
       </div>
     </div>
   )
